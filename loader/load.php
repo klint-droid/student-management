@@ -25,14 +25,25 @@ $allowed_pages = [
     '500',
     '404',
 
+    'departmentCreate',
+    'departmentUpdate',
+    'departmentDelete',
+    'processDepartmentChanges',
+    'processDepartmentData',
+    'processDataDeletion',
+    'processDepartmentDeletion',
 
     'choosePrograms',
     'processProgramChoice',
     'programsList',
+    'programsCreate',
+    'processProgramData',
 
     'chooseStudent',
     'processStudentChoice',
-    'studentsList'
+    'studentsList',
+    'studentCreate',
+    'processStudentData',
 ];
 
 if (in_array($page, $allowed_pages)) {

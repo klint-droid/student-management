@@ -2,45 +2,54 @@
 require_once("data/db.php");
 session_start();
 
-// Reset selections on fresh GET visit
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     unset($_SESSION['school'], $_SESSION['department'], $_SESSION['program']);
 }
 
-// Initialize arrays
 $schools = [];
 $departments = [];
 $programs = [];
 
-// Fetch all schools (always available)
 $dbStatement = $db->prepare("SELECT * FROM colleges");
 $dbStatement->execute();
 $schools = $dbStatement->fetchAll();
 
-// Handle school selection
 if (isset($_POST['selectSchool'])) {
-    $_SESSION['school'] = $_POST['schoolID'];
+
+    $newSchool = $_POST['schoolID'];
+
+    if (!isset($_SESSION['school']) || $_SESSION['school'] != $newSchool) {
+        $_SESSION['department'] = null;
+        $_SESSION['program'] = null;
+    }
+
+    $_SESSION['school'] = $newSchool;
 }
 
-// Handle department selection
 if (isset($_POST['selectDepartment'])) {
-    $_SESSION['department'] = $_POST['departmentID'];
+
+    $newDepartment = $_POST['departmentID'];
+
+    if (!isset($_SESSION['department']) || $_SESSION['department'] != $newDepartment) {
+        $_SESSION['program'] = null;
+    }
+
+    $_SESSION['department'] = $newDepartment;
 }
 
-// Handle program selection
+
 if (isset($_POST['selectProgram'])) {
+
     $_SESSION['program'] = $_POST['programID'];
-    $deptid = $_SESSION['department'];
-    header("Location: index.php?section=students&page=studentsList&progid={$_SESSION['program']}", true, 301);
+
+    header("Location: index.php?section=students&page=studentsList&progid={$_SESSION['program']}");
     exit;
 }
 
-// Determine selected values
 $schoolID = $_SESSION['school'] ?? null;
 $departmentID = $_SESSION['department'] ?? null;
 $programID = $_SESSION['program'] ?? null;
 
-// Always fetch departments if a school is selected
 if ($schoolID) {
     $dbStatement = $db->prepare("SELECT * FROM departments WHERE deptcollid = :schoolID");
     $dbStatement->bindParam(':schoolID', $schoolID);
@@ -48,7 +57,6 @@ if ($schoolID) {
     $departments = $dbStatement->fetchAll();
 }
 
-// Always fetch programs if a department is selected
 if ($departmentID) {
     $dbStatement = $db->prepare("SELECT * FROM programs WHERE progcolldeptid = :deptID");
     $dbStatement->bindParam(':deptID', $departmentID);
@@ -62,13 +70,13 @@ if ($departmentID) {
     <table>
         <tr>
             <td>
-                <!-- School dropdown -->
-                <select name="schoolID" id="schoolID" class="school-select">
-                    <option value="" disabled <?php echo $schoolID === null ? 'selected' : ''; ?>>Select School</option>
+                <select name="schoolID" class="school-select">
+                    <option value="" disabled>--Select School--</option>
+
                     <?php foreach ($schools as $school): ?>
-                        <option value="<?php echo $school['collid']; ?>"
-                            <?php echo ($schoolID == $school['collid']) ? 'selected' : ''; ?>>
-                            <?php echo $school['collfullname']; ?>
+                        <option value="<?= $school['collid']; ?>"
+                            <?= ($schoolID == $school['collid']) ? 'selected' : ''; ?>>
+                            <?= $school['collfullname']; ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -78,13 +86,18 @@ if ($departmentID) {
 
         <tr>
             <td>
-                <!-- Department dropdown -->
-                <select name="departmentID" id="departmentID" class="department-select">
-                    <option value="" disabled <?php echo $departmentID === null ? 'selected' : ''; ?>>Select Department</option>
+                <select name="departmentID"
+                    <?= $schoolID ? '' : 'disabled'; ?> class="school-select">
+
+                    <option value="" disabled
+                        <?= !$departmentID ? 'selected' : ''; ?>>
+                        <?= $schoolID ? 'Select Department' : 'Select School First'; ?>
+                    </option>
+
                     <?php foreach ($departments as $department): ?>
-                        <option value="<?php echo $department['deptid']; ?>"
-                            <?php echo ($departmentID == $department['deptid']) ? 'selected' : ''; ?>>
-                            <?php echo $department['deptfullname']; ?>
+                        <option value="<?= $department['deptid']; ?>"
+                            <?= ($departmentID == $department['deptid']) ? 'selected' : ''; ?>>
+                            <?= $department['deptfullname']; ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -94,13 +107,18 @@ if ($departmentID) {
 
         <tr>
             <td>
-                <!-- Program dropdown -->
-                <select name="programID" id="programID" class="program-select">
-                    <option value="" disabled <?php echo $programID === null ? 'selected' : ''; ?>>Select Program</option>
+               <select name="programID"
+                    <?= $departmentID ? '' : 'disabled'; ?> class="school-select">
+
+                    <option value="" disabled
+                        <?= !$programID ? 'selected' : ''; ?>>
+                        <?= $departmentID ? 'Select Program' : 'Select Department First'; ?>
+                    </option>
+
                     <?php foreach ($programs as $program): ?>
-                        <option value="<?php echo $program['progid']; ?>"
-                            <?php echo ($programID == $program['progid']) ? 'selected' : ''; ?>>
-                            <?php echo $program['progfullname']; ?>
+                        <option value="<?= $program['progid']; ?>"
+                            <?= ($programID == $program['progid']) ? 'selected' : ''; ?>>
+                            <?= $program['progfullname']; ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

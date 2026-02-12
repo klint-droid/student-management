@@ -2,62 +2,86 @@
 require_once("data/db.php");
 session_start();
 
-// Fetch all schools
+
 $dbStatement = $db->prepare("SELECT * FROM colleges");
 $dbStatement->execute();
 $schools = $dbStatement->fetchAll();
 
-// Handle school selection
+$departments = [];
+$schoolID = $_SESSION['school'] ?? null;
+$departmentID = $_SESSION['department'] ?? null;
+
+
 if (isset($_POST['selectSchool'])) {
-    $_SESSION['school'] = $_POST['schoolID'];
+
+    $newSchoolID = $_POST['schoolID'];
+
+    if (!isset($_SESSION['school']) || $_SESSION['school'] != $newSchoolID) {
+        $_SESSION['department'] = null;
+    }
+
+    $_SESSION['school'] = $newSchoolID;
+    $schoolID = $newSchoolID;
+
 
     $dbStatement = $db->prepare("SELECT * FROM departments WHERE deptcollid = :schoolID");
-    $dbStatement->bindParam(':schoolID', $_SESSION['school']);
-    $dbStatement->execute();
-    $programs = $dbStatement->fetchAll();
+    $dbStatement->execute(['schoolID' => $schoolID]);
+    $departments = $dbStatement->fetchAll();
 }
-if(isset($_POST['selectDepartment'])){
-        $deptid = $_POST["departmentID"];
-        header("Location: index.php?section=programs&page=programsList&deptid={$deptid}", true, 301);
-    
 
+if (isset($_POST['selectDepartment'])) {
+
+    if (!empty($_SESSION['school'])) {
+
+        $departmentID = $_POST['departmentID'];
+        $_SESSION['department'] = $departmentID;
+
+        header("Location: index.php?section=programs&page=programsList&deptid={$departmentID}");
+        exit();
+
+    } else {
+        $_SESSION['error'] = "Select school first.";
+    }
 }
-$schoolID = $_SESSION['school'] ?? null;
 ?>
-
 <h1>Select School</h1>
 <form action="index.php?section=programs&page=choosePrograms" method="post">
     <table>
         <tr>
             <td>
-                <!-- School dropdown -->
-                <select name="schoolID" id="schoolID" class="school-select">
-                    <option value="" disabled <?php echo $schoolID === null ? 'selected' : ''; ?>>Select School</option>
+                <select name="schoolID" class="school-select">
+                    <option value="" disabled>--Select School--</option>
+
                     <?php foreach ($schools as $school): ?>
-                        <option value="<?php echo $school['collid']; ?>"
-                            <?php echo ($schoolID == $school['collid']) ? 'selected' : ''; ?>>
-                            <?php echo $school['collfullname']; ?>
+                        <option value="<?= $school['collid']; ?>"
+                            <?= ($schoolID == $school['collid']) ? 'selected' : ''; ?>>
+                            <?= $school['collfullname']; ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
                 <button type="submit" name="selectSchool" class="btn btn-info">Select School</button>
             </td>
         </tr>
-
         <tr>
             <td>
-                <!-- Department dropdown (only shows after school is selected) -->
-                <select name="departmentID" id="departmentID" class="department-select">
-                    <option value="" disabled selected>Select Department</option>
-                    <?php foreach ($programs as $program): ?>
-                        <option value="<?php echo $program['deptid']; ?>">
-                            <?php echo $program['deptfullname']; ?>
+                <select name="departmentID"
+                    <?= $schoolID ? '' : 'disabled'; ?> class="school-select">
+
+                    <option value="" disabled
+                        <?= !$departmentID ? 'selected' : ''; ?>>
+                        <?= $schoolID ? 'Select Department' : 'Select School First'; ?>
+                    </option>
+
+                    <?php foreach ($departments as $department): ?>
+                        <option value="<?= $department['deptid']; ?>"
+                            <?= ($departmentID == $department['deptid']) ? 'selected' : ''; ?>>
+                            <?= $department['deptfullname']; ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <button type="submit" name="selectDepartment" class="btn btn-info">Select Department</button>
+                <button type="submit" name="selectDepartment" class="btn btn-info"
+                    <?= $schoolID ? '' : 'disabled'; ?>>Select Department</button>
             </td>
         </tr>
-       
     </table>
 </form>

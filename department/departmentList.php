@@ -14,7 +14,7 @@
 
 <h1>Department List - <?php echo $school['collfullname']; ?></h1>
 <div>
-    <h2><a href="index.php?section=department&page=departmentCreate" class="btn btn-primary">Create Department</a></h2>
+    <h2><a href="index.php?section=department&page=departmentCreate&collid=<?= $school['collid']; ?>" class="btn btn-primary">Create Department</a></h2>
 </div>
 <table>
     <tr>

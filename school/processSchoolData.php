@@ -72,3 +72,4 @@ if($_POST && isset($_POST['saveNewSchoolEntry'])){
         header("Location: $entryURL", true, 301);
     }
 }
+?>

@@ -11,10 +11,10 @@
 ?>
 <h1>School Delete</h1>
 <span>
-    <?php echo $_SESSION['messages']['updateSuccess'] ?? null; ?>
-    <?php echo $_SESSION['messages']['updateError'] ?? null; ?>
+    <?php echo $_SESSION['messages']['deleteSuccess'] ?? null; ?>
+    <?php echo $_SESSION['messages']['deleteError'] ?? null; ?>
 </span>
-<form action="index.php?section=school&page=processDataChanges" method="post">
+<form action="index.php?section=school&page=processDataDeletion" method="post">
     <table>
         <tr>
             <td style="width: 10em;">School ID:</td>
@@ -43,7 +43,7 @@
                 <a href="index.php?section=school&page=schoolList" class="btn btn-primary">
                     Cancel Operation
                 </a>                
-                <button type="submit" name="confirmDelete" class="btn btn-danger">
+                <button type="submit" name="confirmDelete" class="btn btn-danger" onclick="return confirm('Delete this department?')">
                     Confirm Operation
                 </button>
             </td>
