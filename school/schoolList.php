@@ -39,6 +39,7 @@
         <th>School ID</th>
         <th>School Full Name</th>
         <th>School Short Name</th>
+        <th>Actions</th>
     </tr>
     <?php foreach ($schools as $school): ?>
     <tr>

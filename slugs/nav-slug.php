@@ -1,5 +1,6 @@
 <aside>
     <ul>
+        <li><a href="home/home.php">Home</a></li>
         <li><a href="index.php?section=school&page=schoolList">Schools</a></li>
         <li><a href="index.php?section=department&page=chooseSchool">Departments</a></li>
         <li><a href="index.php?section=programs&page=choosePrograms">Programs</a></li>

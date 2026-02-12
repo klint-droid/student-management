@@ -24,6 +24,7 @@ $allowed_pages = [
     'processSchoolChoice',
     '500',
     '404',
+    'home.php',
 
     'departmentCreate',
     'departmentUpdate',
