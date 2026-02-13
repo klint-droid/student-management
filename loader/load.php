@@ -39,12 +39,20 @@ $allowed_pages = [
     'programsList',
     'programsCreate',
     'processProgramData',
+    'programsDelete',
+    'programsDataDeletion',
+    'programsUpdate',
+    'processProgramChanges',
 
     'chooseStudent',
     'processStudentChoice',
     'studentsList',
     'studentCreate',
     'processStudentData',
+    'studentDelete',
+    'studentUpdate',
+    'studentDataDeletion',
+    'studentDataChanges',
 ];
 
 if (in_array($page, $allowed_pages)) {

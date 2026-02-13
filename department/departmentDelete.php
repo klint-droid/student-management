@@ -1,53 +1,69 @@
 <?php
+require_once('data/db.php');
+session_start();
 
-    require_once('data/db.php');
-    session_start();
-    session_regenerate_id();
+$departmentID = filter_input(INPUT_GET, 'deptid', FILTER_VALIDATE_INT);
 
-    $departmentID = $_GET['deptid'];
+if (!$departmentID) {
+    die("Invalid department ID.");
+}
 
-    $dbStatement = $db->prepare("SELECT * FROM departments WHERE deptid = :departmentID");
-    $dbStatement->execute(['departmentID' => $departmentID]);
-    $department = $dbStatement->fetch(PDO::FETCH_ASSOC);
+
+$dbStatement = $db->prepare("
+    SELECT deptid, deptfullname, deptshortname, deptcollid
+    FROM departments
+    WHERE deptid = :deptid
+");
+$dbStatement->execute(['deptid' => $departmentID]);
+$department = $dbStatement->fetch(PDO::FETCH_ASSOC);
+
+if (!$department) {
+    die("Department not found.");
+}
+
+$successMsg = $_SESSION['messages']['deleteSuccess'] ?? '';
+$errorMsg   = $_SESSION['messages']['deleteError'] ?? '';
+
+unset($_SESSION['messages']);
 ?>
 
-<h1>Department Delete</h1>
-<span>
-    <?php echo $_SESSION['messages']['deleteSuccess'] ?? null; ?>
-    <?php echo $_SESSION['messages']['deleteError'] ?? null; ?>
-</span>
+<h1>Delete Department</h1>
+
+<?php if ($successMsg): ?>
+    <p style="color:green;"><?= htmlspecialchars($successMsg) ?></p>
+<?php endif; ?>
+
+<?php if ($errorMsg): ?>
+    <p style="color:red;"><?= htmlspecialchars($errorMsg) ?></p>
+<?php endif; ?>
 
 <form action="index.php?section=department&page=processDepartmentDeletion" method="post">
+    <input type="hidden" name="departmentID" value="<?= $department['deptid']; ?>">
+
     <table>
         <tr>
-            <td style="width: 10em;">Department ID:</td>
-            <td style="width: 30em;"><input type="text" id="departmentID" name="departmentID" value="<?php echo $department['deptid']; ?>" readonly class="data-input"></td>
+            <td>Department ID:</td>
+            <td><?= htmlspecialchars($department['deptid']); ?></td>
         </tr>
         <tr>
-            <td>Department Full Name:</td>
-            <td><input type="text" id="departmentFullName" name="departmentFullName" value="<?php echo $department['deptfullname'] ?>" class="data-input"></td>
-            <td>
-                <span>
-                    <?php echo $_SESSION['errors']['departmentFullName'] ?? null; ?>
-                </span>
-            </td>
+            <td>Depertment Full Name:</td>
+            <td><?= htmlspecialchars($department['deptfullname']); ?></td>
         </tr>
         <tr>
             <td>Department Short Name:</td>
-            <td><input type="text" id="departmentShortName" name="departmentShortName" value="<?php echo $department['deptshortname'] ?>" class="data-input"></td>
-            <td>
-                <span>
-                    <?php echo $_SESSION['errors']['departmentShortName'] ?? null; ?>
-                </span>
-            </td>
+            <td><?= htmlspecialchars($department['deptshortname']); ?></td>
         </tr>
         <tr>
             <td colspan="2">
-                <a href="index.php?section=department&page=departmentList&deptcollid=<?php echo $department['deptcollid'] ?>" class="btn btn-primary">
-                    Cancel Operation
+                <a href="index.php?section=department&page=departmentList&deptcollid=<?= $department['deptcollid']; ?>" 
+                   class="btn btn-primary">
+                   Cancel
                 </a>
-                <button type="submit" name="confirmDelete" class="btn btn-danger" onclick="return confirm('Delete this department?')">
-                    Confirm Operation
+
+                <button type="submit" name="confirmDelete"
+                        class="btn btn-danger"
+                        onclick="return confirm('Are you sure you want to delete this department?')">
+                        Confirm Delete
                 </button>
             </td>
         </tr>

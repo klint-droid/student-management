@@ -54,8 +54,8 @@
 
         if(!ctype_digit($studentID)){
             $_SESSION['errors']['studentID'] = "Invalid ID entry or format";
-        } else if(strlen($studentID) > 8 || strlen($studentID) < 8){
-            $_SESSION['errors']['studentID'] = "ID must be 8 digits";
+        } else if(strlen($studentID) > 10 || strlen($studentID) < 10){
+            $_SESSION['errors']['studentID'] = "ID must be 10 digits";
         } else {
             $_SESSION['errors']['studentID'] = "";
         }
